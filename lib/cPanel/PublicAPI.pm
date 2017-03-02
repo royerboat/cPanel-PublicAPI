@@ -100,6 +100,10 @@ sub new {
         $self->debug("Setting user based on current uid ($>)") if $self->{'debug'};
     }
 
+    # Allow the user to specify an api_token instead of an accesshash.
+    # Though, it will just act as a synonym.
+    $OPTS{'accesshash'} = $OPTS{'api_token'} if ( exists $OPTS{'api_token'} );
+
     if ( ( !exists( $OPTS{'pass'} ) || $OPTS{'pass'} eq '' ) && ( !exists $OPTS{'accesshash'} || $OPTS{'accesshash'} eq '' ) ) {
         my $homedir = exists $INC{'Cpanel/PwCache.pm'} ? ( Cpanel::PwCache::getpwuid($>) )[7] : ( getpwuid($>) )[7];
         $self->debug("Attempting to detect correct authentication credentials") if $self->{'debug'};
@@ -110,10 +114,10 @@ sub new {
                 $self->{'accesshash'} = readline($hash_fh);
                 $self->{'accesshash'} =~ s/[\r\n]+//g;
                 close($hash_fh);
-                $self->debug("Got access hash from $homedir/.accesshash") if $self->{'debug'};
+                $self->debug("Got accesshash from $homedir/.accesshash") if $self->{'debug'};
             }
             else {
-                $self->debug("Failed to fetch access hash from $homedir/.accesshash") if $self->{'debug'};
+                $self->debug("Failed to fetch accesshash from $homedir/.accesshash") if $self->{'debug'};
             }
         }
         elsif ( exists $ENV{'REMOTE_PASSWORD'} && $ENV{'REMOTE_PASSWORD'} && $ENV{'REMOTE_PASSWORD'} ne '__HIDDEN__' && exists $ENV{'SERVER_SOFTWARE'} && $ENV{'SERVER_SOFTWARE'} =~ /^cpsrvd/ ) {
@@ -121,7 +125,7 @@ sub new {
             $self->{'pass'} = $ENV{'REMOTE_PASSWORD'};
         }
         else {
-            Carp::confess('pass or access hash is a required parameter');
+            Carp::confess('pass or accesshash/API token is a required parameter');
         }
     }
     elsif ( $OPTS{'pass'} ) {
@@ -161,6 +165,10 @@ sub accesshash {
     $self->{'accesshash'} = shift;
     delete $self->{'pass'};
     $self->_update_operating_mode();
+}
+
+sub api_token {
+    goto &accesshash;
 }
 
 sub whm_api {
@@ -334,7 +342,7 @@ sub api_request {
 sub establish_tfa_session {
     my ( $self, $service, $tfa_token ) = @_;
     if ( $self->{'operating_mode'} ne 'session' ) {
-        $self->error("2FA-authenticated sessions are not supported when using accesshash keys");
+        $self->error("2FA-authenticated sessions are not supported when using accesshash keys or API tokens");
         die $self->{'error'};
     }
     if ( !( $service && $tfa_token ) ) {
@@ -378,7 +386,7 @@ sub _update_operating_mode {
         $self->{'security_tokens'} = { map { $_ => undef } keys %PORT_DB };
     }
     else {
-        $self->error('You must specify an accesshash or password');
+        $self->error('You must specify an accesshash/API token or password');
         die $self->{'error'};
     }
 }
