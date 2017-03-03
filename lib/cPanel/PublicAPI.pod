@@ -92,7 +92,7 @@ a cPanel::PublicAPI object is constructed with the new() method.
 
   my $publicapi = cPanel::PublicAPI->new();
 
-When passed no parameters, this will create the object using the accesshash in ~/.accesshash.  If no .accesshash file exists, it will attempt to use the REMOTE_PASS environment variable, if that is not defined, object creation will error out.
+When passed no parameters, this will create the object using the accesshash in ~/.accesshash. If no .accesshash file exists, it will attempt to use the REMOTE_PASS environment variable. If the REMOTE_PASS variable is not defined, object creation will error out.
 
 =head3 new() parameters
 
@@ -133,17 +133,7 @@ First we have the basic user/password combinations:
   use cPanel::PublicAPI;
   my $pubapi = cPanel::PublicAPI->new( 'user' => 'foo', 'pass' => 'bar' );
 
-Next is accesshash authentication.  To configure accesshashes, visit “Setup remote access key”
-in WHM which will generate an accesshash for your server if one does not already exist. It will store the generated accesshash
-in /root/.accesshash.  To use an accesshash with this module you can do something like the following:
-
-  use cPanel::PublicAPI;
-  my $pubapi = cPanel::PublicAPI->new( 'user' => 'foo', 'accesshash' => $string_containing_access_hash );
-
-It should be noted that the access hash can contain newlines in it,  Newlines will be stripped by the object when
-it attempts to perform a query.
-
-Last is API token authentication. To create an API token, visit "Manage API Tokens" in WHM and click Generate Token. Fill out
+Next is API token authentication. To create an API token, visit "Manage API Tokens" in WHM and click Generate Token. Fill out
 the form and click Generate. Your token will appear in a special notice. Make certain that you save your API token in a safe location
 on your workstation. You cannot access the token after you navigate away from the interface or refresh the API Tokens table.
 
@@ -152,6 +142,20 @@ To use an API token with this module, do the following:
   use cPanel::PublicAPI;
   my $pubapi = cPanel::PublicAPI->new( 'user' => 'foo', 'api_token' => $string_containing_api_token );
 
+
+Last is accesshash authentication.  To configure accesshashes, visit “Setup remote access key”
+in WHM which will generate an accesshash for your server if one does not already exist. It will store the generated accesshash
+in ~/.accesshash.
+
+To use an accesshash with this module, do the following:
+
+  use cPanel::PublicAPI;
+  my $pubapi = cPanel::PublicAPI->new( 'user' => 'foo', 'accesshash' => $string_containing_access_hash );
+
+It should be noted that the accesshash can contain newlines in it. Newlines will be stripped by the object when
+it attempts to perform a query.
+
+B<NOTE:> Accesshash authentication is deprecated in cPanel & WHM version 64.
 
 =head3 Dependencies
 
