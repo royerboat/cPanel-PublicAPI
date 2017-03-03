@@ -114,19 +114,22 @@ sub check_cpanel_version {
 sub check_api_access_and_config {
 
     open( my $config_fh, '<', '/var/cpanel/cpanel.config' ) || BAIL_OUT('Could not load /var/cpanel/cpanel.config');
-    my $securitypolicy_enabled = 0;
-    foreach my $line ( readline($config_fh) ) {
+    my $securitypolicy_enabled         = 0;
+    my $securitypolicy_xml_api_enabled = 0;
+    while ( my $line = readline($config_fh) ) {
         next if $line !~ /=/;
         chomp $line;
         my ( $key, $value ) = split( /=/, $line, 2 );
         if ( $key eq 'SecurityPolicy::TwoFactorAuth' ) {
             $securitypolicy_enabled = 1 if $value;
-            last;
+        }
+        elsif ( $key eq 'SecurityPolicy::xml-api' ) {
+            $securitypolicy_xml_api_enabled = 1 if $value;
         }
     }
-    if ( !$securitypolicy_enabled ) {
-        plan skip_all => '2FA security policy is disabled on the server';
-    }
+
+    plan skip_all => '2FA security policy is disabled on the server'             if !$securitypolicy_enabled;
+    plan skip_all => 'Security policies do not apply to API calls on the server' if !$securitypolicy_xml_api_enabled;
 
     my $pubapi = cPanel::PublicAPI->new( 'ssl_verify_mode' => 0 );
     my $res = eval { $pubapi->whm_api('applist') };
