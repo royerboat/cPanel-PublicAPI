@@ -173,7 +173,7 @@ sub accesshash {
 }
 
 sub api_token {
-    goto &accesshash;
+    return shift->accesshash(@_);
 }
 
 sub whm_api {
