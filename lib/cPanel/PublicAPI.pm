@@ -130,7 +130,7 @@ sub new {
             $self->{'pass'} = $ENV{'REMOTE_PASSWORD'};
         }
         else {
-            Carp::confess('pass or accesshash/API token is a required parameter');
+            Carp::confess('pass, accesshash, or api_token is a required parameter');
         }
     }
     elsif ( $OPTS{'pass'} ) {
@@ -391,7 +391,7 @@ sub _update_operating_mode {
         $self->{'security_tokens'} = { map { $_ => undef } keys %PORT_DB };
     }
     else {
-        $self->error('You must specify an accesshash/API token or password');
+        $self->error('You must specify an accesshash, API token, or password');
         die $self->{'error'};
     }
 }
