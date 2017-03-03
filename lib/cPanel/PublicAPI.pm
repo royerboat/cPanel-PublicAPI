@@ -107,7 +107,7 @@ sub new {
 
     # Allow the user to specify an api_token instead of an accesshash.
     # Though, it will just act as a synonym.
-    $OPTS{'accesshash'} = $OPTS{'api_token'} if ( exists $OPTS{'api_token'} );
+    $OPTS{'accesshash'} = $OPTS{'api_token'} if $OPTS{'api_token'};
 
     if ( ( !exists( $OPTS{'pass'} ) || $OPTS{'pass'} eq '' ) && ( !exists $OPTS{'accesshash'} || $OPTS{'accesshash'} eq '' ) ) {
         my $homedir = exists $INC{'Cpanel/PwCache.pm'} ? ( Cpanel::PwCache::getpwuid($>) )[7] : ( getpwuid($>) )[7];
