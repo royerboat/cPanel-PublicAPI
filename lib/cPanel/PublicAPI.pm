@@ -100,6 +100,11 @@ sub new {
         $self->debug("Setting user based on current uid ($>)") if $self->{'debug'};
     }
 
+    if ( exists $OPTS{'api_token'} && exists $OPTS{'accesshash'} ) {
+        $self->error('You cannot specify both an accesshash and an API token');
+        die $self->{'error'};
+    }
+
     # Allow the user to specify an api_token instead of an accesshash.
     # Though, it will just act as a synonym.
     $OPTS{'accesshash'} = $OPTS{'api_token'} if ( exists $OPTS{'api_token'} );
